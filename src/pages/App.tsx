@@ -1,3 +1,4 @@
+import Web3Status from 'components/Web3Status'
 import React, { Suspense } from 'react'
 import { Route, Switch } from 'react-router-dom'
 import styled from 'styled-components'
@@ -15,7 +16,7 @@ import AddLiquidity from './AddLiquidity'
 import {
   RedirectDuplicateTokenIds,
   RedirectOldAddLiquidityPathStructure,
-  RedirectToAddLiquidity
+  RedirectToAddLiquidity,
 } from './AddLiquidity/redirects'
 import Earn from './Earn'
 import Manage from './Earn/Manage'
@@ -76,19 +77,23 @@ function TopLevelModals() {
 export default function App() {
   return (
     <Suspense fallback={null}>
-      <Route component={GoogleAnalyticsReporter} />
-      <Route component={DarkModeQueryParamReader} />
+      {/* <Route component={GoogleAnalyticsReporter} />
+      <Route component={DarkModeQueryParamReader} /> */}
       <AppWrapper>
-        <URLWarning />
-        <HeaderWrapper>
+        {/* <URLWarning /> */}
+        {/* <HeaderWrapper>
           <Header />
-        </HeaderWrapper>
+        </HeaderWrapper> */}
         <BodyWrapper>
           <Popups />
-          <Polling />
+
+          {/* <Polling /> */}
           <TopLevelModals />
           <Web3ReactManager>
-            <Switch>
+            <Web3Status />
+          </Web3ReactManager>
+
+          {/* <Switch>
               <Route exact strict path="/swap" component={Swap} />
               <Route exact strict path="/claim" component={OpenClaimAddressModalAndRedirectToSwap} />
               <Route exact strict path="/swap/:outputCurrency" component={RedirectToSwap} />
@@ -112,8 +117,7 @@ export default function App() {
               <Route exact strict path="/uni/:currencyIdA/:currencyIdB" component={Manage} />
               <Route exact strict path="/vote/:id" component={VotePage} />
               <Route component={RedirectPathToSwapOnly} />
-            </Switch>
-          </Web3ReactManager>
+            </Switch> */}
           <Marginer />
         </BodyWrapper>
       </AppWrapper>
