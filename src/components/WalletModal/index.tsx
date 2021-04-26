@@ -116,6 +116,46 @@ const WALLET_VIEWS = {
   PENDING: 'pending'
 }
 
+type InitConnectReturnType  = AbstractConnector | undefined;
+
+export  const useInitConnect =  (func:()=>  InitConnectReturnType) => {
+  const { activate } = useWeb3React()
+  const [myConnector,setMyConnector] = useState(func());
+
+  useEffect(()=>{
+    
+    let name = ''
+    Object.keys(SUPPORTED_WALLETS).map(key => {
+      if (myConnector === SUPPORTED_WALLETS[key].connector) {
+        return (name = SUPPORTED_WALLETS[key].name)
+      }
+      return true
+    })
+    // log selected wallet
+    ReactGA.event({
+      category: 'Wallet',
+      action: 'Change Wallet',
+      label: name
+    })
+    // setPendingWallet(connector) // set wallet for pending view
+    // setWalletView(WALLET_VIEWS.PENDING)
+  
+    // if the connector is walletconnect and the user has already tried to connect, manually reset the connector
+    if (myConnector instanceof WalletConnectConnector && myConnector.walletConnectProvider?.wc?.uri) {
+      myConnector.walletConnectProvider = undefined
+    }
+  
+    myConnector &&
+      activate(myConnector, undefined, true).catch(error => {
+        if (error instanceof UnsupportedChainIdError) {
+          activate(myConnector) // a little janky...can't use setError because the connector isn't set
+        }
+      })
+  },[]);
+}
+
+
+
 export default function WalletModal({
   pendingTransactions,
   confirmedTransactions,

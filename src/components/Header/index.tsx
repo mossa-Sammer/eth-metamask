@@ -41,20 +41,21 @@ const HeaderFrame = styled.div`
   width: 100%;
   top: 0;
   position: relative;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  // border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   padding: 1rem;
   z-index: 2;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    grid-template-columns: 1fr;
-    padding: 0 1rem;
-    width: calc(100%);
-    position: relative;
-  `};
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-        padding: 0.5rem 1rem;
-  `}
+ 
 `
+ // ${({ theme }) => theme.mediaWidth.upToMedium`
+  //   grid-template-columns: 1fr;
+  //   padding: 0 1rem;
+  //   width: calc(100%);
+  //   position: relative;
+  // `};
+
+  // ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+  //       padding: 0.5rem 1rem;
+  // `}
 
 const HeaderControls = styled.div`
   display: flex;
@@ -62,23 +63,26 @@ const HeaderControls = styled.div`
   align-items: center;
   justify-self: flex-end;
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    flex-direction: row;
-    justify-content: space-between;
-    justify-self: center;
-    width: 100%;
-    max-width: 960px;
-    padding: 1rem;
-    position: fixed;
-    bottom: 0px;
-    left: 0px;
-    width: 100%;
-    z-index: 99;
-    height: 72px;
-    border-radius: 12px 12px 0 0;
-    background-color: ${({ theme }) => theme.bg1};
-  `};
+  
 `
+
+
+// ${({ theme }) => theme.mediaWidth.upToMedium`
+//     flex-direction: row;
+//     justify-content: space-between;
+//     justify-self: center;
+//     width: 100%;
+//     max-width: 960px;
+//     padding: 1rem;
+//     position: fixed;
+//     bottom: 0px;
+//     left: 0px;
+//     width: 100%;
+//     z-index: 99;
+//     height: 72px;
+//     border-radius: 12px 12px 0 0;
+//     background-color: ${({ theme }) => theme.bg1};
+//   `};
 
 const HeaderElement = styled.div`
   display: flex;
@@ -101,9 +105,9 @@ const HeaderElementWrap = styled.div`
 `
 
 const HeaderRow = styled(RowFixed)`
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-   width: 100%;
-  `};
+  // ${({ theme }) => theme.mediaWidth.upToMedium`
+  //  width: 100%;
+  // `};
 `
 
 const HeaderLinks = styled(Row)`
@@ -322,7 +326,7 @@ export default function Header() {
       <Modal isOpen={showUniBalanceModal} onDismiss={() => setShowUniBalanceModal(false)}>
         <UniBalanceContent setShowUniBalanceModal={setShowUniBalanceModal} />
       </Modal>
-      <HeaderRow>
+      {/* <HeaderRow>
         <Title href=".">
           <UniIcon>
             <img width={'24px'} src={darkMode ? LogoDark : Logo} alt="logo" />
@@ -355,7 +359,7 @@ export default function Header() {
             Charts <span style={{ fontSize: '11px' }}>↗</span>
           </StyledExternalLink>
         </HeaderLinks>
-      </HeaderRow>
+      </HeaderRow> */}
       <HeaderControls>
         <HeaderElement>
           <HideSmall>
@@ -363,7 +367,7 @@ export default function Header() {
               <NetworkCard title={NETWORK_LABELS[chainId]}>{NETWORK_LABELS[chainId]}</NetworkCard>
             )}
           </HideSmall>
-          {availableClaim && !showClaimPopup && (
+          {/* {availableClaim && !showClaimPopup && (
             <UNIWrapper onClick={toggleClaimModal}>
               <UNIAmount active={!!account && !availableClaim} style={{ pointerEvents: 'auto' }}>
                 <TYPE.white padding="0 2px">
@@ -398,7 +402,7 @@ export default function Header() {
               </UNIAmount>
               <CardNoise />
             </UNIWrapper>
-          )}
+          )} */}
           <AccountElement active={!!account} style={{ pointerEvents: 'auto' }}>
             {account && userEthBalance ? (
               <BalanceText style={{ flexShrink: 0 }} pl="0.75rem" pr="0.5rem" fontWeight={500}>
@@ -408,12 +412,12 @@ export default function Header() {
             <Web3Status />
           </AccountElement>
         </HeaderElement>
-        <HeaderElementWrap>
+        {/* <HeaderElementWrap>
           <StyledMenuButton onClick={() => toggleDarkMode()}>
             {darkMode ? <Moon size={20} /> : <Sun size={20} />}
           </StyledMenuButton>
           <Menu />
-        </HeaderElementWrap>
+        </HeaderElementWrap> */}
       </HeaderControls>
     </HeaderFrame>
   )

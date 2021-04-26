@@ -31,8 +31,8 @@ export class FortmaticConnector extends FortmaticConnectorCore {
       const interval = setInterval(() => {
         if (provider.overlayReady) {
           clearInterval(interval)
-          this.emit(OVERLAY_READY)
-          resolve()
+          this.emit(OVERLAY_READY);
+          resolve();
         }
       }, 200)
     })

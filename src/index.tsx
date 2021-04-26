@@ -5,11 +5,12 @@ import { isMobile } from 'react-device-detect'
 import ReactDOM from 'react-dom'
 import ReactGA from 'react-ga'
 import { Provider } from 'react-redux'
-import { HashRouter } from 'react-router-dom'
+import { HashRouter,BrowserRouter } from 'react-router-dom'
 import Blocklist from './components/Blocklist'
 import { NetworkContextName } from './constants'
 import './i18n'
-import App from './pages/App'
+import App, { Poole } from './pages/App'
+import {Connector} from './pages/App'
 import store from './state'
 import * as serviceWorkerRegistration from './serviceWorkerRegistration'
 import ApplicationUpdater from './state/application/updater'
@@ -19,6 +20,7 @@ import TransactionUpdater from './state/transactions/updater'
 import UserUpdater from './state/user/updater'
 import ThemeProvider, { FixedGlobalStyle, ThemedGlobalStyle } from './theme'
 import getLibrary from './utils/getLibrary'
+import { REPLCommand } from 'repl'
 
 const Web3ProviderNetwork = createWeb3ReactRoot(NetworkContextName)
 
@@ -61,26 +63,63 @@ function Updaters() {
   )
 }
 
-ReactDOM.render(
-  <StrictMode>
-    <FixedGlobalStyle />
-    <Web3ReactProvider getLibrary={getLibrary}>
-      <Web3ProviderNetwork getLibrary={getLibrary}>
-        <Blocklist>
-          <Provider store={store}>
-            <Updaters />
-            <ThemeProvider>
-              <ThemedGlobalStyle />
-              <HashRouter>
-                <App />
-              </HashRouter>
-            </ThemeProvider>
-          </Provider>
-        </Blocklist>
-      </Web3ProviderNetwork>
-    </Web3ReactProvider>
-  </StrictMode>,
-  document.getElementById('root')
-)
+
+const TreeWrapper:React.FC = ({children}:{children?:React.ReactNode} )=> {
+  return (<StrictMode>
+  <FixedGlobalStyle />
+  <Web3ReactProvider getLibrary={getLibrary}>
+    <Web3ProviderNetwork getLibrary={getLibrary}>
+      <Blocklist>
+        <Provider store={store}>
+          <Updaters />
+          <ThemeProvider>
+            <ThemedGlobalStyle />
+            <HashRouter>
+             {children}
+            </HashRouter>
+          </ThemeProvider>
+        </Provider>
+      </Blocklist>
+    </Web3ProviderNetwork>
+  </Web3ReactProvider>
+</StrictMode>)
+};
+
+
+const  root= document.getElementById('root');
+if(root){
+
+  ReactDOM.render(
+   
+                  <TreeWrapper>
+                    <App />
+                    </TreeWrapper>
+                    ,
+    root
+  );
+}
+
+const  root_1 = document.getElementById('root_1');
+
+if(root_1){
+
+  ReactDOM.render(
+    <TreeWrapper>
+      <Connector />
+      </TreeWrapper>
+      ,
+  root_1
+  );
+}
+
+
+const poolRoot = document.getElementById("pool_root");
+if(poolRoot){
+  ReactDOM.render( 
+  <TreeWrapper>
+    <Poole></Poole>
+    </TreeWrapper>
+    ,poolRoot);
+}
 
 serviceWorkerRegistration.unregister()

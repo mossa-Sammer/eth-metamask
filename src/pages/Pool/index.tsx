@@ -130,7 +130,7 @@ export default function Pool() {
         <VoteCard>
           <CardBGImage />
           <CardNoise />
-          <CardSection>
+          {/* <CardSection>
             <AutoColumn gap="md">
               <RowBetween>
                 <TYPE.white fontWeight={600}>Liquidity provider rewards</TYPE.white>
@@ -148,7 +148,7 @@ export default function Pool() {
                 <TYPE.white fontSize={14}>Read more about providing liquidity</TYPE.white>
               </ExternalLink>
             </AutoColumn>
-          </CardSection>
+          </CardSection> */}
           <CardBGImage />
           <CardNoise />
         </VoteCard>

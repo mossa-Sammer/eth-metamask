@@ -74,7 +74,7 @@ export function FindPoolTabs() {
   return (
     <Tabs>
       <RowBetween style={{ padding: '1rem 1rem 0 1rem' }}>
-        <HistoryLink to="/pool">
+        <HistoryLink to="/">
           <StyledArrowLeft />
         </HistoryLink>
         <ActiveText>Import Pool</ActiveText>
@@ -92,7 +92,7 @@ export function AddRemoveTabs({ adding, creating }: { adding: boolean; creating:
     <Tabs>
       <RowBetween style={{ padding: '1rem 1rem 0 1rem' }}>
         <HistoryLink
-          to="/pool"
+          to="/"
           onClick={() => {
             adding && dispatch(resetMintState())
           }}
