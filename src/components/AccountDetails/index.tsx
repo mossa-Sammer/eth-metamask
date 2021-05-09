@@ -12,7 +12,7 @@ import Transaction from './Transaction'
 import { SUPPORTED_WALLETS } from '../../constants'
 import { ReactComponent as Close } from '../../assets/images/x.svg'
 import { getEtherscanLink } from '../../utils'
-import { injected, walletconnect, walletlink, fortmatic, portis } from '../../connectors'
+import { injected, walletconnect, walletlink, fortmatic, portis, tass } from '../../connectors'
 import CoinbaseWalletIcon from '../../assets/images/coinbaseWalletIcon.svg'
 import WalletConnectIcon from '../../assets/images/walletConnectIcon.svg'
 import FortmaticIcon from '../../assets/images/fortmaticIcon.png'
@@ -21,6 +21,7 @@ import Identicon from '../Identicon'
 import { ButtonSecondary } from '../Button'
 import { ExternalLink as LinkIcon } from 'react-feather'
 import { ExternalLink, LinkStyledButton, TYPE } from '../../theme'
+import { TassContextType, Web3TassContext } from 'context/web3_tass'
 
 const HeaderRow = styled.div`
   ${({ theme }) => theme.flexRowNoWrap};
@@ -226,6 +227,7 @@ export default function AccountDetails({
   openOptions
 }: AccountDetailsProps) {
   const { chainId, account, connector } = useActiveWeb3React()
+  const { showWeb3, setShowWeb3, address: tassAddress } = useContext(Web3TassContext) as TassContextType
   const theme = useContext(ThemeContext)
   const dispatch = useDispatch<AppDispatch>()
 
@@ -238,7 +240,7 @@ export default function AccountDetails({
           SUPPORTED_WALLETS[k].connector === connector && (connector !== injected || isMetaMask === (k === 'METAMASK'))
       )
       .map(k => SUPPORTED_WALLETS[k].name)[0]
-    return <WalletName>Connected with {name}</WalletName>
+    return <WalletName>Connected with {showWeb3 ? name : 'Tass'}</WalletName>
   }
 
   function getStatusIcon() {
@@ -281,6 +283,22 @@ export default function AccountDetails({
           </IconWrapper>
         </>
       )
+    } else if ((connector as any) === tass) {
+      console.log('its tass')
+      return (
+        <>
+          <IconWrapper size={16}>
+            <img src={PortisIcon} alt={'portis logo'} />
+            <MainWalletAction
+              onClick={() => {
+                portis.portis.showPortis()
+              }}
+            >
+              Show Portis
+            </MainWalletAction>
+          </IconWrapper>
+        </>
+      )
     }
     return null
   }
@@ -288,6 +306,8 @@ export default function AccountDetails({
   const clearAllTransactionsCallback = useCallback(() => {
     if (chainId) dispatch(clearAllTransactions({ chainId }))
   }, [dispatch, chainId])
+
+  console.log('our ens name is', ENSName)
 
   return (
     <>
@@ -306,7 +326,8 @@ export default function AccountDetails({
                     <WalletAction
                       style={{ fontSize: '.825rem', fontWeight: 400, marginRight: '8px' }}
                       onClick={() => {
-                        ;(connector as any).close()
+                        if (!showWeb3) setShowWeb3(true)
+                        else (connector as any).close()
                       }}
                     >
                       Disconnect
@@ -315,6 +336,7 @@ export default function AccountDetails({
                   <WalletAction
                     style={{ fontSize: '.825rem', fontWeight: 400 }}
                     onClick={() => {
+                      console.log('sss')
                       openOptions()
                     }}
                   >
@@ -328,7 +350,7 @@ export default function AccountDetails({
                     <>
                       <div>
                         {getStatusIcon()}
-                        <p> {ENSName}</p>
+                        <p> 1111{ENSName}</p>
                       </div>
                     </>
                   ) : (
@@ -336,6 +358,7 @@ export default function AccountDetails({
                       <div>
                         {getStatusIcon()}
                         <p> {account && shortenAddress(account)}</p>
+                        <p> {!showWeb3 && shortenAddress(tassAddress)}</p>
                       </div>
                     </>
                   )}
@@ -370,6 +393,11 @@ export default function AccountDetails({
                       <div>
                         {account && (
                           <Copy toCopy={account}>
+                            <span style={{ marginLeft: '4px' }}>Copy Address</span>
+                          </Copy>
+                        )}
+                        {!showWeb3 && (
+                          <Copy toCopy={tassAddress}>
                             <span style={{ marginLeft: '4px' }}>Copy Address</span>
                           </Copy>
                         )}

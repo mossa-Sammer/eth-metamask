@@ -6,9 +6,10 @@ import { PortisConnector } from '@web3-react/portis-connector'
 
 import { FortmaticConnector } from './Fortmatic'
 import { NetworkConnector } from './NetworkConnector'
+import { TassConnector } from './Tass'
 
 const NETWORK_URL = process.env.REACT_APP_NETWORK_URL
-const FORMATIC_KEY = process.env.REACT_APP_FORTMATIC_KEY
+const FORMATIC_KEY = process.env.REACT_APP_FORTMATIC_KEY ?? 'pk_live_F4175D3343A750A8'
 const PORTIS_ID = process.env.REACT_APP_PORTIS_ID
 
 export const NETWORK_CHAIN_ID: number = parseInt(process.env.REACT_APP_CHAIN_ID ?? '1')
@@ -56,4 +57,8 @@ export const walletlink = new WalletLinkConnector({
   appName: 'Uniswap',
   appLogoUrl:
     'https://mpng.pngfly.com/20181202/bex/kisspng-emoji-domain-unicorn-pin-badges-sticker-unicorn-tumblr-emoji-unicorn-iphoneemoji-5c046729264a77.5671679315437924251569.jpg'
+})
+
+export const tass = new TassConnector({
+  apiToken: localStorage.getItem('tass_token') ? JSON.parse(localStorage.getItem('tass_token') ?? '') : ''
 })

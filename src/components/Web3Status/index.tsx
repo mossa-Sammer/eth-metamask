@@ -1,7 +1,8 @@
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core'
+import { TassContextType, Web3TassContext } from 'context/web3_tass'
 import { darken, lighten } from 'polished'
-import React, { useMemo } from 'react'
+import React, { useEffect, useContext, useMemo } from 'react'
 import { Activity } from 'react-feather'
 import { useTranslation } from 'react-i18next'
 import styled, { css } from 'styled-components'
@@ -163,7 +164,9 @@ function StatusIcon({ connector }: { connector: AbstractConnector }) {
 
 function Web3StatusInner() {
   const { t } = useTranslation()
-  const { account, connector, error } = useWeb3React()
+  const { account, connector, error, deactivate } = useWeb3React()
+  console.log('web3statusinner', account, connector, error)
+  const { showWeb3, setShowWeb3 } = useContext(Web3TassContext) as TassContextType
 
   const { ENSName } = useENSName(account ?? undefined)
 
@@ -174,13 +177,23 @@ function Web3StatusInner() {
     return txs.filter(isTransactionRecent).sort(newTransactionsFirst)
   }, [allTransactions])
 
-  const pending = sortedRecentTransactions.filter((tx) => !tx.receipt).map((tx) => tx.hash)
+  const pending = sortedRecentTransactions.filter(tx => !tx.receipt).map(tx => tx.hash)
 
   const hasPendingTransactions = !!pending.length
   const hasSocks = useHasSocks()
   const toggleWalletModal = useWalletModalToggle()
 
+  const foo = async () => {
+    deactivate()
+  }
+
+  useEffect(() => {
+    // foo()
+  }, [showWeb3])
+
   if (account) {
+    // use tass context to hide it
+    setShowWeb3(true)
     return (
       <Web3StatusConnected id="web3-status-connected" onClick={toggleWalletModal} pending={hasPendingTransactions}>
         {hasPendingTransactions ? (
@@ -212,11 +225,12 @@ function Web3StatusInner() {
   }
 }
 
-export default function Web3Status({show=true}:{show?:boolean}) {
+export default function Web3Status({ show = true }: { show?: boolean }) {
   const { active, account } = useWeb3React()
   const contextNetwork = useWeb3React(NetworkContextName)
+  const { address: tassAddress } = useContext(Web3TassContext) as TassContextType
 
-  const { ENSName } = useENSName(account ?? undefined)
+  const { ENSName } = useENSName(account ?? tassAddress ?? undefined)
 
   const allTransactions = useAllTransactions()
 
@@ -225,8 +239,8 @@ export default function Web3Status({show=true}:{show?:boolean}) {
     return txs.filter(isTransactionRecent).sort(newTransactionsFirst)
   }, [allTransactions])
 
-  const pending = sortedRecentTransactions.filter((tx) => !tx.receipt).map((tx) => tx.hash)
-  const confirmed = sortedRecentTransactions.filter((tx) => tx.receipt).map((tx) => tx.hash)
+  const pending = sortedRecentTransactions.filter(tx => !tx.receipt).map(tx => tx.hash)
+  const confirmed = sortedRecentTransactions.filter(tx => tx.receipt).map(tx => tx.hash)
 
   if (!contextNetwork.active && !active) {
     return null
@@ -235,7 +249,9 @@ export default function Web3Status({show=true}:{show?:boolean}) {
   return (
     <>
       {show && <Web3StatusInner />}
-      {show && <WalletModal ENSName={ENSName ?? undefined} pendingTransactions={pending} confirmedTransactions={confirmed} />}
+      {show && (
+        <WalletModal ENSName={ENSName ?? undefined} pendingTransactions={pending} confirmedTransactions={confirmed} />
+      )}
     </>
   )
 }

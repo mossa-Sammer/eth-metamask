@@ -1,24 +1,26 @@
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import ReactGA from 'react-ga'
 import styled from 'styled-components'
 import MetamaskIcon from '../../assets/images/metamask.png'
 import { ReactComponent as Close } from '../../assets/images/x.svg'
-import { fortmatic, injected, portis } from '../../connectors'
+import { fortmatic, injected, portis, tass } from '../../connectors'
 import { OVERLAY_READY } from '../../connectors/Fortmatic'
-import { SUPPORTED_WALLETS } from '../../constants'
+import { SELECTED_CONNECTOR, SUPPORTED_WALLETS } from '../../constants'
 import usePrevious from '../../hooks/usePrevious'
 import { ApplicationModal } from '../../state/application/actions'
 import { useModalOpen, useWalletModalToggle } from '../../state/application/hooks'
 import { ExternalLink } from '../../theme'
+import { Web3TassContext, TassContextType } from '../../context/web3_tass'
 import AccountDetails from '../AccountDetails'
 
 import Modal from '../Modal'
 import Option from './Option'
 import PendingView from './PendingView'
+import { TassConnector } from 'connectors/Tass'
 
 const CloseIcon = styled.div`
   position: absolute;
@@ -116,15 +118,18 @@ const WALLET_VIEWS = {
   PENDING: 'pending'
 }
 
-type InitConnectReturnType  = AbstractConnector | undefined;
+type InitConnectReturnType = AbstractConnector | undefined
 
-export  const useInitConnect =  (func:()=>  InitConnectReturnType) => {
+export const useInitConnect = (func: () => InitConnectReturnType) => {
   const { activate } = useWeb3React()
-  const [myConnector,setMyConnector] = useState(func());
+  const [myConnector, setMyConnector] = useState(func())
 
-  useEffect(()=>{
-    
+  useEffect(() => {
     let name = ''
+    console.log("what's up", myConnector)
+    if (myConnector === SUPPORTED_WALLETS['Tass'].connector) {
+      console.log('whats up tass!!!!')
+    }
     Object.keys(SUPPORTED_WALLETS).map(key => {
       if (myConnector === SUPPORTED_WALLETS[key].connector) {
         return (name = SUPPORTED_WALLETS[key].name)
@@ -137,24 +142,32 @@ export  const useInitConnect =  (func:()=>  InitConnectReturnType) => {
       action: 'Change Wallet',
       label: name
     })
+    localStorage.setItem(SELECTED_CONNECTOR, name)
+
     // setPendingWallet(connector) // set wallet for pending view
     // setWalletView(WALLET_VIEWS.PENDING)
-  
+
     // if the connector is walletconnect and the user has already tried to connect, manually reset the connector
     if (myConnector instanceof WalletConnectConnector && myConnector.walletConnectProvider?.wc?.uri) {
       myConnector.walletConnectProvider = undefined
     }
-  
-    myConnector &&
-      activate(myConnector, undefined, true).catch(error => {
-        if (error instanceof UnsupportedChainIdError) {
-          activate(myConnector) // a little janky...can't use setError because the connector isn't set
-        }
-      })
-  },[]);
+
+    if (myConnector !== (tass as any))
+      myConnector &&
+        activate(myConnector, undefined, true)
+          .then(() => {
+            console.log('hello connecter connected!!!!!!!!!')
+            // myConnector.
+          })
+          .catch(error => {
+            console.log('error connecting', error)
+            if (error instanceof UnsupportedChainIdError) {
+              console.log('unspoorted chainid')
+              activate(myConnector) // a little janky...can't use setError because the connector isn't set
+            }
+          })
+  }, [activate])
 }
-
-
 
 export default function WalletModal({
   pendingTransactions,
@@ -166,7 +179,11 @@ export default function WalletModal({
   ENSName?: string
 }) {
   // important that these are destructed from the account-specific web3-react context
-  const { active, account, connector, activate, error } = useWeb3React()
+  console.log('hello wallet modal')
+  const { active, account, connector, activate, error, deactivate } = useWeb3React()
+  const { setShowWeb3, showWeb3, setBalance, setAddress } = useContext(Web3TassContext) as TassContextType
+
+  console.log('showWeb3', showWeb3)
 
   const [walletView, setWalletView] = useState(WALLET_VIEWS.ACCOUNT)
 
@@ -204,8 +221,19 @@ export default function WalletModal({
   }, [setWalletView, active, error, connector, walletModalOpen, activePrevious, connectorPrevious])
 
   const tryActivation = async (connector: AbstractConnector | undefined) => {
+    console.log('try activation!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+
+    // here we need to disable the web3status buttron group
+    // add our own set of btns
+    // some sort of action dispatch to redux, or call a function to change context wrapps the web3 status btn
     let name = ''
+
+    if ((connector as any) === tass) {
+      console.log('hello', 1111)
+    }
+
     Object.keys(SUPPORTED_WALLETS).map(key => {
+      // could be better
       if (connector === SUPPORTED_WALLETS[key].connector) {
         return (name = SUPPORTED_WALLETS[key].name)
       }
@@ -238,17 +266,21 @@ export default function WalletModal({
   // close wallet modal if fortmatic modal is active
   useEffect(() => {
     fortmatic.on(OVERLAY_READY, () => {
-      toggleWalletModal()
+      if (walletModalOpen) {
+        toggleWalletModal()
+      }
     })
   }, [toggleWalletModal])
 
   // get wallets user can switch too, depending on device/browser
   function getOptions() {
+    console.log('get my options')
     const isMetamask = window.ethereum && window.ethereum.isMetaMask
     return Object.keys(SUPPORTED_WALLETS).map(key => {
       const option = SUPPORTED_WALLETS[key]
       // check for mobile options
       if (isMobile) {
+        console.log('11111111111111111', "it's mobile")
         //disable portis on mobile for now
         if (option.connector === portis) {
           return null
@@ -258,6 +290,9 @@ export default function WalletModal({
           return (
             <Option
               onClick={() => {
+                if ((option as any).connector === tass) {
+                  setShowWeb3(false)
+                }
                 option.connector !== connector && !option.href && tryActivation(option.connector)
               }}
               id={`connect-${key}`}
@@ -276,6 +311,7 @@ export default function WalletModal({
 
       // overwrite injected when needed
       if (option.connector === injected) {
+        console.log('its injected!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
         // don't show injected if there's no injected provider
         if (!(window.web3 || window.ethereum)) {
           if (option.name === 'MetaMask') {
@@ -310,7 +346,20 @@ export default function WalletModal({
         !option.mobileOnly && (
           <Option
             id={`connect-${key}`}
-            onClick={() => {
+            onClick={async () => {
+              if ((option as any).connector === tass) {
+                console.log(1111, 'hello', setShowWeb3)
+                deactivate()
+
+                const bal = await TassConnector.activate()
+                setBalance(bal)
+                setAddress('0xdb28C4e517dc57376E12F3078F0A6caEF4a831eC')
+                setShowWeb3(false)
+                localStorage.setItem(SELECTED_CONNECTOR, SUPPORTED_WALLETS.Tass.name)
+                toggleWalletModal()
+                return
+              }
+              console.log('hello connector')
               option.connector === connector
                 ? setWalletView(WALLET_VIEWS.ACCOUNT)
                 : !option.href && tryActivation(option.connector)
@@ -329,6 +378,7 @@ export default function WalletModal({
   }
 
   function getModalContent() {
+    console.log('get Modal context')
     if (error) {
       return (
         <UpperSection>
@@ -346,14 +396,24 @@ export default function WalletModal({
         </UpperSection>
       )
     }
-    if (account && walletView === WALLET_VIEWS.ACCOUNT) {
+    console.log('account:', account, 'wallet view:', { walletView }, 'showWeb3:', showWeb3)
+    if (
+      (account && walletView === WALLET_VIEWS.ACCOUNT) ||
+      (!account && !showWeb3 && walletView !== WALLET_VIEWS.OPTIONS)
+    ) {
+      // cases
+      // tass connected i want to show this dialog,
+      // but if i clicked change, i want to see the options istead of the details
       return (
         <AccountDetails
           toggleWalletModal={toggleWalletModal}
           pendingTransactions={pendingTransactions}
           confirmedTransactions={confirmedTransactions}
           ENSName={ENSName}
-          openOptions={() => setWalletView(WALLET_VIEWS.OPTIONS)}
+          openOptions={() => {
+            console.log('get options!!!!!!!!!!')
+            setWalletView(WALLET_VIEWS.OPTIONS)
+          }}
         />
       )
     }

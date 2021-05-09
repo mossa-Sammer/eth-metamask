@@ -24,12 +24,9 @@ const store = configureStore({
     multicall,
     lists
   },
-  middleware: [
-    ...getDefaultMiddleware({ thunk: false }),
-     save(),
-    ] ,
-  preloadedState: { ...load()},
-});
+  // middleware: [...getDefaultMiddleware({ thunk: false })]
+  // preloadedState: { ...load() }
+})
 
 store.dispatch(updateVersion())
 
