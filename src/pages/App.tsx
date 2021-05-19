@@ -111,7 +111,18 @@ export default function App() {
     // console.log('hello',selectedConnector)
     // return SUPPORTED_WALLETS[selectedConnector].connector;
     // return SUPPORTED_WALLETS.WALLET_CONNECT.connector
-    return SUPPORTED_WALLETS.FORTMATIC.connector
+    if (!selectedConnector) return
+    const walletKey = Object.entries(SUPPORTED_WALLETS)
+      .map(([key, value]) => {
+        if (value.name === selectedConnector) return key
+      })
+      .filter(e => {
+        if (e === undefined) return false
+        else return true
+      })
+
+    if (walletKey && walletKey.length !== 0) return SUPPORTED_WALLETS[(walletKey as any)[0]].connector
+    else return undefined
     // SUPPORTED_WALLETS.WALLET_CONNECT as any
   })
 

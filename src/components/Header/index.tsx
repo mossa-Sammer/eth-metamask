@@ -44,28 +44,24 @@ const HeaderFrame = styled.div`
   // border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   padding: 1rem;
   z-index: 2;
- 
 `
- // ${({ theme }) => theme.mediaWidth.upToMedium`
-  //   grid-template-columns: 1fr;
-  //   padding: 0 1rem;
-  //   width: calc(100%);
-  //   position: relative;
-  // `};
+// ${({ theme }) => theme.mediaWidth.upToMedium`
+//   grid-template-columns: 1fr;
+//   padding: 0 1rem;
+//   width: calc(100%);
+//   position: relative;
+// `};
 
-  // ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-  //       padding: 0.5rem 1rem;
-  // `}
+// ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+//       padding: 0.5rem 1rem;
+// `}
 
 const HeaderControls = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-self: flex-end;
-
-  
 `
-
 
 // ${({ theme }) => theme.mediaWidth.upToMedium`
 //     flex-direction: row;
@@ -205,7 +201,7 @@ const UniIcon = styled.div`
 const activeClassName = 'ACTIVE'
 
 const StyledNavLink = styled(NavLink).attrs({
-  activeClassName,
+  activeClassName
 })`
   ${({ theme }) => theme.flexRowNoWrap}
   align-items: left;
@@ -232,7 +228,7 @@ const StyledNavLink = styled(NavLink).attrs({
 `
 
 const StyledExternalLink = styled(ExternalLink).attrs({
-  activeClassName,
+  activeClassName
 })<{ isActive?: boolean }>`
   ${({ theme }) => theme.flexRowNoWrap}
   align-items: left;
@@ -295,7 +291,7 @@ const NETWORK_LABELS: { [chainId in ChainId]?: string } = {
   [ChainId.RINKEBY]: 'Rinkeby',
   [ChainId.ROPSTEN]: 'Ropsten',
   [ChainId.GÖRLI]: 'Görli',
-  [ChainId.KOVAN]: 'Kovan',
+  [ChainId.KOVAN]: 'Kovan'
 }
 
 export default function Header() {
@@ -303,6 +299,7 @@ export default function Header() {
   const { t } = useTranslation()
 
   const userEthBalance = useETHBalances(account ? [account] : [])?.[account ?? '']
+  console.log({ userEthBalance, account })
   // const [isDark] = useDarkModeManager()
   const [darkMode, toggleDarkMode] = useDarkModeManager()
 
@@ -403,7 +400,11 @@ export default function Header() {
               <CardNoise />
             </UNIWrapper>
           )} */}
-          <AccountElement active={!!account} style={{ pointerEvents: 'auto' }}>
+          <AccountElement
+            // active={!!account}
+            active={true}
+            style={{ pointerEvents: 'auto' }}
+          >
             {account && userEthBalance ? (
               <BalanceText style={{ flexShrink: 0 }} pl="0.75rem" pr="0.5rem" fontWeight={500}>
                 {userEthBalance?.toSignificant(4)} ETH

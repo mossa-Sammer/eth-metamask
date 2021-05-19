@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react'
 import styled from 'styled-components'
-import ReactGA from 'react-ga'
+// import ReactGA from 'react-ga'
 import { TYPE, CloseIcon } from 'theme'
 import Card from 'components/Card'
 import { AutoColumn } from 'components/Column'
@@ -53,11 +53,11 @@ export function ImportList({ listURL, list, setModalView, onDismiss }: ImportPro
     setAddError(null)
     fetchList(listURL)
       .then(() => {
-        ReactGA.event({
-          category: 'Lists',
-          action: 'Add List',
-          label: listURL
-        })
+        // ReactGA.event({
+        //   category: 'Lists',
+        //   action: 'Add List',
+        //   label: listURL
+        // })
 
         // turn list on
         dispatch(enableList(listURL))
@@ -65,11 +65,11 @@ export function ImportList({ listURL, list, setModalView, onDismiss }: ImportPro
         setModalView(CurrencyModalView.manage)
       })
       .catch(error => {
-        ReactGA.event({
-          category: 'Lists',
-          action: 'Add List Failed',
-          label: listURL
-        })
+        // ReactGA.event({
+        //   category: 'Lists',
+        //   action: 'Add List Failed',
+        //   label: listURL
+        // })
         setAddError(error.message)
         dispatch(removeList(listURL))
       })

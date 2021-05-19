@@ -183,17 +183,17 @@ function Web3StatusInner() {
   const hasSocks = useHasSocks()
   const toggleWalletModal = useWalletModalToggle()
 
-  const foo = async () => {
-    deactivate()
-  }
+  // const foo = async () => {
+  //   deactivate()
+  // }
 
-  useEffect(() => {
-    // foo()
-  }, [showWeb3])
+  // useEffect(() => {
+  //   // foo()
+  // }, [showWeb3])
 
   if (account) {
     // use tass context to hide it
-    setShowWeb3(true)
+    // setShowWeb3(true)
     return (
       <Web3StatusConnected id="web3-status-connected" onClick={toggleWalletModal} pending={hasPendingTransactions}>
         {hasPendingTransactions ? (
@@ -230,7 +230,7 @@ export default function Web3Status({ show = true }: { show?: boolean }) {
   const contextNetwork = useWeb3React(NetworkContextName)
   const { address: tassAddress } = useContext(Web3TassContext) as TassContextType
 
-  const { ENSName } = useENSName(account ?? tassAddress ?? undefined)
+  const { ENSName } = useENSName(account ?? undefined)
 
   const allTransactions = useAllTransactions()
 

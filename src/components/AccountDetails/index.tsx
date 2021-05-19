@@ -326,8 +326,9 @@ export default function AccountDetails({
                     <WalletAction
                       style={{ fontSize: '.825rem', fontWeight: 400, marginRight: '8px' }}
                       onClick={() => {
-                        if (!showWeb3) setShowWeb3(true)
-                        else (connector as any).close()
+                        // if (!showWeb3) setShowWeb3(true)
+                        // else 
+                        (connector as any).close()
                       }}
                     >
                       Disconnect

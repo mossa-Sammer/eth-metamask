@@ -24,8 +24,8 @@ const store = configureStore({
     multicall,
     lists
   },
-  // middleware: [...getDefaultMiddleware({ thunk: false })]
-  // preloadedState: { ...load() }
+  middleware: [...getDefaultMiddleware({ thunk: false }), save({ states: PERSISTED_KEYS })],
+  preloadedState: load({ states: PERSISTED_KEYS })
 })
 
 store.dispatch(updateVersion())

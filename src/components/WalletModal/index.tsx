@@ -3,7 +3,7 @@ import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import React, { useContext, useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import ReactGA from 'react-ga'
+// import ReactGA from 'react-ga'
 import styled from 'styled-components'
 import MetamaskIcon from '../../assets/images/metamask.png'
 import { ReactComponent as Close } from '../../assets/images/x.svg'
@@ -121,10 +121,13 @@ const WALLET_VIEWS = {
 type InitConnectReturnType = AbstractConnector | undefined
 
 export const useInitConnect = (func: () => InitConnectReturnType) => {
-  const { activate } = useWeb3React()
+  const { activate, deactivate } = useWeb3React()
   const [myConnector, setMyConnector] = useState(func())
 
   useEffect(() => {
+    deactivate()
+
+    if (!myConnector) return
     let name = ''
     console.log("what's up", myConnector)
     if (myConnector === SUPPORTED_WALLETS['Tass'].connector) {
@@ -137,35 +140,35 @@ export const useInitConnect = (func: () => InitConnectReturnType) => {
       return true
     })
     // log selected wallet
-    ReactGA.event({
-      category: 'Wallet',
-      action: 'Change Wallet',
-      label: name
-    })
+    // ReactGA.event({
+    //   category: 'Wallet',
+    //   action: 'Change Wallet',
+    //   label: name
+    // })
     localStorage.setItem(SELECTED_CONNECTOR, name)
 
     // setPendingWallet(connector) // set wallet for pending view
     // setWalletView(WALLET_VIEWS.PENDING)
 
     // if the connector is walletconnect and the user has already tried to connect, manually reset the connector
-    if (myConnector instanceof WalletConnectConnector && myConnector.walletConnectProvider?.wc?.uri) {
-      myConnector.walletConnectProvider = undefined
+    if ((myConnector as any) instanceof WalletConnectConnector && (myConnector as any).walletConnectProvider?.wc?.uri) {
+      ;(myConnector as any).walletConnectProvider = undefined
     }
 
-    if (myConnector !== (tass as any))
-      myConnector &&
-        activate(myConnector, undefined, true)
-          .then(() => {
-            console.log('hello connecter connected!!!!!!!!!')
-            // myConnector.
-          })
-          .catch(error => {
-            console.log('error connecting', error)
-            if (error instanceof UnsupportedChainIdError) {
-              console.log('unspoorted chainid')
-              activate(myConnector) // a little janky...can't use setError because the connector isn't set
-            }
-          })
+    // if (myConnector !== (tass as any))
+    myConnector &&
+      activate(myConnector, undefined, true)
+        .then(() => {
+          console.log('hello connecter connected!!!!!!!!!')
+          // myConnector.
+        })
+        .catch(error => {
+          console.log('error connecting', error)
+          if (error instanceof UnsupportedChainIdError) {
+            console.log('unspoorted chainid')
+            activate(myConnector) // a little janky...can't use setError because the connector isn't set
+          }
+        })
   }, [activate])
 }
 
@@ -221,7 +224,7 @@ export default function WalletModal({
   }, [setWalletView, active, error, connector, walletModalOpen, activePrevious, connectorPrevious])
 
   const tryActivation = async (connector: AbstractConnector | undefined) => {
-    console.log('try activation!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+    console.log('try activation!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', connector)
 
     // here we need to disable the web3status buttron group
     // add our own set of btns
@@ -240,11 +243,14 @@ export default function WalletModal({
       return true
     })
     // log selected wallet
-    ReactGA.event({
-      category: 'Wallet',
-      action: 'Change Wallet',
-      label: name
-    })
+    // ReactGA.event({
+    //   category: 'Wallet',
+    //   action: 'Change Wallet',
+    //   label: name
+    // })
+    console.log('selected wallet is', name)
+
+    localStorage.setItem(SELECTED_CONNECTOR, name)
     setPendingWallet(connector) // set wallet for pending view
     setWalletView(WALLET_VIEWS.PENDING)
 
@@ -290,9 +296,9 @@ export default function WalletModal({
           return (
             <Option
               onClick={() => {
-                if ((option as any).connector === tass) {
-                  setShowWeb3(false)
-                }
+                // if ((option as any).connector === tass) {
+                //   // setShowWeb3(false)
+                // }
                 option.connector !== connector && !option.href && tryActivation(option.connector)
               }}
               id={`connect-${key}`}
@@ -347,18 +353,18 @@ export default function WalletModal({
           <Option
             id={`connect-${key}`}
             onClick={async () => {
-              if ((option as any).connector === tass) {
-                console.log(1111, 'hello', setShowWeb3)
-                deactivate()
+              // if ((option as any).connector === tass) {
+              //   console.log(1111, 'hello', setShowWeb3)
+              //   deactivate()
 
-                const bal = await TassConnector.activate()
-                setBalance(bal)
-                setAddress('0xdb28C4e517dc57376E12F3078F0A6caEF4a831eC')
-                setShowWeb3(false)
-                localStorage.setItem(SELECTED_CONNECTOR, SUPPORTED_WALLETS.Tass.name)
-                toggleWalletModal()
-                return
-              }
+              //   const bal = await TassConnector.activate()
+              //   setBalance(bal)
+              //   setAddress('0xdb28C4e517dc57376E12F3078F0A6caEF4a831eC')
+              //   // setShowWeb3/(false)
+              //   localStorage.setItem(SELECTED_CONNECTOR, SUPPORTED_WALLETS.Tass.name)
+              //   toggleWalletModal()
+              //   return
+              // }
               console.log('hello connector')
               option.connector === connector
                 ? setWalletView(WALLET_VIEWS.ACCOUNT)

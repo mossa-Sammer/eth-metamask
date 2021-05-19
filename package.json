@@ -25,6 +25,7 @@
     "@types/styled-components": "^5.1.0",
     "@types/testing-library__cypress": "^5.0.5",
     "@types/wcag-contrast": "^3.0.0",
+    "@types/web3-provider-engine": "^14.0.0",
     "@typescript-eslint/eslint-plugin": "^2.31.0",
     "@typescript-eslint/parser": "^2.31.0",
     "@uniswap/governance": "^1.0.2",
@@ -120,6 +121,7 @@
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "@uniswap/default-token-list": "^2.0.0",
-    "redux-persist": "^6.0.0"
+    "redux-persist": "^6.0.0",
+    "web3-provider-engine": "^16.0.1"
   }
 }

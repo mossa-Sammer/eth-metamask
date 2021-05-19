@@ -1,5 +1,6 @@
 import { Currency, Pair } from '@uniswap/sdk'
-import React, { useState, useCallback } from 'react'
+import { Contract, getDefaultProvider } from 'ethers'
+import React, { useState, useEffect, useCallback, useContext } from 'react'
 import styled from 'styled-components'
 import { darken } from 'polished'
 import { useCurrencyBalance } from '../../state/wallet/hooks'
@@ -14,6 +15,7 @@ import { ReactComponent as DropDown } from '../../assets/images/dropdown.svg'
 import { useActiveWeb3React } from '../../hooks'
 import { useTranslation } from 'react-i18next'
 import useTheme from '../../hooks/useTheme'
+import { TassContextType, Web3TassContext } from 'context/web3_tass'
 
 const InputRow = styled.div<{ selected: boolean }>`
   ${({ theme }) => theme.flexRowNoWrap}
@@ -151,11 +153,92 @@ export default function CurrencyInputPanel({
   customBalanceText
 }: CurrencyInputPanelProps) {
   const { t } = useTranslation()
+  const [myBalance, setMyBalance] = useState(0)
 
   const [modalOpen, setModalOpen] = useState(false)
   const { account } = useActiveWeb3React()
-  const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
+  const { showWeb3, address, balance } = useContext(Web3TassContext) as TassContextType
+
+  console.log(33333333333333333, {
+    account,
+    currency
+  })
+  const selectedCurrencyBalance = useCurrencyBalance(
+    account ?? undefined,
+
+    currency ?? {
+      decimals: 18,
+      name: 'Ethercumo',
+      symbol: 'ETH'
+    }
+  )
+
+  useEffect(() => {
+    const tokensList = {
+      DAI: '0x95b58a6bff3d14b7db2f5cb5f0ad413dc2940658',
+      UNI: '0x1f9840a85d5af5bf1d1762f925bdaddc4201f984',
+      WETH: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
+      MKR: '0xc42da14b1c0ae7d4dd3946633f1046c3d46f3101',
+      ETH: '0x2170ed0880ac9a755fd29b2688956bd959f933f8'
+    }
+    ;(async () => {
+      const _address = '0xdb28C4e517dc57376E12F3078F0A6caEF4a831eC'
+      console.log('my address', _address)
+
+      if (_address && currency) {
+        return
+        const tokenAbi =
+          '[{"constant": true,"inputs": [{"name": "_owner","type": "address"}],"name": "balanceOf","outputs": [{"name": "balance","type": "uint256"}],"payable": false,"type": "function"}]'
+
+        const provider = getDefaultProvider('rinkeby', {
+          infura: 'https://rinkeby.infura.io/v3/59dc9253491f41b8bc140f5d9d4e53f9'
+        })
+
+        // const options = {
+        //   tokenAddress,
+        //   tokenAbi,
+        //   provider,
+        //   _address
+        // }
+
+        const getBalance = async (options: any) => {
+          const contract = new Contract(options.tokenAddress, options.tokenAbi, options.provider)
+          const balance = await contract.balanceOf(options._address)
+          return balance.toString()
+        }
+
+        const tokenSymbol = (currency as any).symbol
+
+        if (tokenSymbol && tokenSymbol !== 'ETH') {
+          const bal = await getBalance({
+            provider: provider,
+            _address,
+            tokenAddress: (tokensList as any)[(currency as any).symbol],
+            tokenAbi
+          })
+          setMyBalance(bal / (1 * 10 ** 18))
+          console.log(bal / (1 * 10 ** 18))
+        } else if (tokenSymbol === 'ETH') {
+          const provider = getDefaultProvider('rinkeby', {
+            infura: 'https://rinkeby.infura.io/v3/59dc9253491f41b8bc140f5d9d4e53f9'
+          })
+          const bal: any = await provider.getBalance(_address)
+
+          setMyBalance(bal / 10 ** 18)
+        }
+      }
+    })()
+  }, [currency, account])
+
   const theme = useTheme()
+
+  console.log(111111111111111111111111111111, {
+    currency,
+    address,
+    balance,
+    selectedCurrencyBalance
+  })
+  useEffect(() => {}, [showWeb3, address, balance, selectedCurrencyBalance])
 
   const handleDismissSearch = useCallback(() => {
     setModalOpen(false)
@@ -181,6 +264,7 @@ export default function CurrencyInputPanel({
                   {!hideBalance && !!currency && selectedCurrencyBalance
                     ? (customBalanceText ?? 'Balance: ') + selectedCurrencyBalance?.toSignificant(6)
                     : ' -'}
+                  {/* {myBalance} */}
                 </TYPE.body>
               )}
             </RowBetween>
